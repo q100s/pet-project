@@ -26,8 +26,8 @@ public class AdController {
     }
 
     @PostMapping
-    public ResponseEntity<AdDto> addAd(@RequestParam("ad") CreateOrUpdateAdDto createOrUpdateAdDto,
-                                       @RequestParam("image") MultipartFile image) throws IOException {
+    public ResponseEntity<AdDto> addAd(@RequestPart("ad") CreateOrUpdateAdDto createOrUpdateAdDto,
+                                       @RequestPart("image") MultipartFile image) throws IOException {
         try {
             adService.addAd(createOrUpdateAdDto, image.getBytes());
             return ResponseEntity.status(HttpStatus.CREATED).build();

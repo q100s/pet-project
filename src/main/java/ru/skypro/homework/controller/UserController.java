@@ -53,7 +53,7 @@ public class UserController {
         }
     }
     @PatchMapping("/me/image")
-    public ResponseEntity<Void> updateUserImage(@RequestParam("image")MultipartFile image) throws IOException {
+    public ResponseEntity<Void> updateUserImage(@RequestBody MultipartFile image) throws IOException {
         byte[] imageBytes = image.getBytes();
         try {
             userService.updateUserImage(imageBytes);
