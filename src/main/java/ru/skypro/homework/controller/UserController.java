@@ -9,7 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.skypro.homework.dto.User;
+import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.model.User;
 import ru.skypro.homework.service.UserService;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public class UserController {
                     )
             })
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         return userService.getAllUsers();
 
     }
@@ -75,7 +76,7 @@ public class UserController {
                     description = "Отредактированный пользователь",
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = User.class)
+                            schema = @Schema()
                     )
             ),
             responses = {
@@ -96,8 +97,8 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<User> editUser(@Parameter(description = "Идентификатор для поиска") @PathVariable Long id,
                                          @Parameter(description = "Отредактированный пользователь") @RequestBody User user) {
-        User shelterUserCheck = userService.editUser(id, user);
-        if (shelterUserCheck == null) {
+        User userCheck = userService.editUser(id, user);
+        if (userCheck == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(user);
@@ -144,7 +145,7 @@ public class UserController {
                     )
             })
     @GetMapping("/{id}")
-    public User findUserById(@Parameter(description = "Идентификатор для поиска") @PathVariable long id) {
+    public UserDto findUserById(@Parameter(description = "Идентификатор для поиска") @PathVariable long id) {
         return userService.findUserById(id);
     }
 

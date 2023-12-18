@@ -2,40 +2,44 @@ package ru.skypro.homework.service;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ru.skypro.homework.UserRepository;
-import ru.skypro.homework.dto.User;
+import ru.skypro.homework.dto.Mapper.UserMapper;
+import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.repository.UserRepository;
+import ru.skypro.homework.model.User;
 import ru.skypro.homework.exception.UserNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class UserService {
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private UserMapper userMapper;
+
     private UserRepository userRepository;
 
     public User createUser(User user) {
-        logger.info("user was created");
+        log.info("user was created");
         return userRepository.save(user);
     }
 
     public void deleteUserById(Long id) {
-        logger.info("start method deleteUserById");
+        log.info("start method deleteUserById");
         User userCheck = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         userRepository.delete(userCheck);
     }
 
-    public List<User> getAllUsers() {
-        logger.info("start method getAllUserFromUserRepository");
-        return userRepository.findAll();
+    public List<UserDto> getAllUsers() {
+        log.info("start method getAllUserFromUserRepository");
+        return userRepository.findAll().stream()
+                .map(user -> userMapper.fromUserEntity(user))
+                .collect(Collectors.toList());
     }
 
     public User editUser(Long id, User user) {
-        logger.info("start method editUser");
+        log.info("start method editUser");
         User editedUser = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         Optional.ofNullable(user.getUserName()).ifPresent(editedUser::setUserName);
         Optional.ofNullable(user.getPassword()).ifPresent(editedUser::setPassword);
@@ -46,8 +50,10 @@ public class UserService {
 
     }
 
-    public User findUserById(Long id) {
-        logger.info("start method findUserById");
-        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+    public UserDto findUserById(Long id) {
+        log.info("start method findUserById");
+        User user= userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        return userMapper.fromUserEntity(user);
+
     }
 }
