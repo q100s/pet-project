@@ -1,12 +1,20 @@
 package ru.skypro.homework.service.impl;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
+import ru.skypro.homework.model.Comment;
+import ru.skypro.homework.repository.AdRepository;
+import ru.skypro.homework.repository.CommentRepository;
 import ru.skypro.homework.service.AdService;
 
 @Service
+@AllArgsConstructor
 public class AdServiceImpl implements AdService {
+    private final AdRepository adRepository;
+    private final CommentRepository commentRepository;
+
     @Override
     public AdsDto getAllAds() {
         return null;
@@ -60,5 +68,8 @@ public class AdServiceImpl implements AdService {
     @Override
     public void updateImage(Integer id, MultipartFile image) {
 
+    }
+    public Comment getByAdId(Integer id) {
+        return commentRepository.findByAdId(id);
     }
 }

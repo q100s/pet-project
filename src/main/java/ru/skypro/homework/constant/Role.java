@@ -1,4 +1,4 @@
-package ru.skypro.homework.model;
+package ru.skypro.homework.constant;
 
 public enum Role {
     USER, ADMIN
