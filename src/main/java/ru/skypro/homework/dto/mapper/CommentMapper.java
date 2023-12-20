@@ -5,12 +5,13 @@ import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.model.Comment;
+import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.impl.AdServiceImpl;
 
 @Service
 @AllArgsConstructor
 public class CommentMapper {
-    private final AdServiceImpl adService;
+    private final UserRepository userRepository;
     public static CommentDto mapFromCommentEntityIntoCommentDto(Comment entity) {
         CommentDto dto = new CommentDto();
         dto.setPk(entity.getId());
@@ -27,7 +28,7 @@ public class CommentMapper {
         entity.setId(dto.getPk());
         entity.setCreatedAt(dto.getCreationTime());
         entity.setText(dto.getText());
-        entity.setAuthor(adService.getByAdId(dto.getPk()).getAuthor());
+        entity.setAuthor(userRepository.getReferenceById(entity.getAuthor().getId()));
         return entity;
     }
 

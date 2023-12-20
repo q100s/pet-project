@@ -2,16 +2,16 @@
 
 -- changeset q100s:1
 CREATE TABLE ad (
-    id BIGINT PRIMARY KEY,
+    id INT PRIMARY KEY,
     price INT,
     title VARCHAR,
-    decription VARCHAR,
+    description VARCHAR,
     image_url VARCHAR,
     author_id INT
 );
 
 CREATE TABLE comments (
-    id BIGINT PRIMARY KEY,
+    id INT PRIMARY KEY,
     price INT,
     text VARCHAR,
     created_at INT,
@@ -20,7 +20,7 @@ CREATE TABLE comments (
 );
 
 CREATE TABLE users (
-    id BIGINT PRIMARY KEY,
+    id INT PRIMARY KEY,
     email VARCHAR,
     password VARCHAR,
     first_name VARCHAR,

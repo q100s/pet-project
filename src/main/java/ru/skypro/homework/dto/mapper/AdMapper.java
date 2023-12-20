@@ -6,6 +6,7 @@ import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.model.Ad;
+import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.UserService;
 import ru.skypro.homework.service.impl.UserServiceImpl;
 
@@ -13,7 +14,7 @@ import ru.skypro.homework.service.impl.UserServiceImpl;
 @AllArgsConstructor
 public class AdMapper {
 
-    private final UserServiceImpl userService;
+    private final UserRepository userRepository;
     public static AdDto mapFromAdEntityIntoAdDto(Ad entity) {
         AdDto dto = new AdDto();
         dto.setPk(entity.getId());
@@ -27,7 +28,7 @@ public class AdMapper {
     public Ad mapFromAdDtoIntoAdEntity(AdDto dto) {
         Ad entity = new Ad();
         entity.setId(dto.getPk());
-        entity.setAuthor(userService.findById(entity.getAuthor().getId()));
+        entity.setAuthor(userRepository.getReferenceById(entity.getAuthor().getId()));
         entity.setImageUrl(dto.getImageUrl());
         entity.setPrice(dto.getPrice());
         entity.setTitle(dto.getTitle());
@@ -70,7 +71,7 @@ public class AdMapper {
         entity.setDescription(dto.getDescription());
         entity.setPrice(dto.getPrice());
         entity.setTitle(dto.getTitle());
-        entity.setAuthor(userService.findById(dto.getPk()));
+        entity.setAuthor(userRepository.getReferenceById(entity.getAuthor().getId()));
         return entity;
     }
 }

@@ -1,12 +1,16 @@
 package ru.skypro.homework.model;
 
-import lombok.Data;
+import lombok.*;
 import ru.skypro.homework.constant.Role;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Objects;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -27,4 +31,42 @@ public class User {
 
     @OneToMany(mappedBy = "author")
     private Collection<Comment> comments;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id)
+                && Objects.equals(email, user.email)
+                && Objects.equals(password, user.password)
+                && Objects.equals(firstName, user.firstName)
+                && Objects.equals(lastName, user.lastName)
+                && Objects.equals(phoneNumber, user.phoneNumber)
+                && role == user.role
+                && Objects.equals(imageUrl, user.imageUrl)
+                && Objects.equals(ads, user.ads)
+                && Objects.equals(comments, user.comments);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, password, firstName, lastName, phoneNumber, role, imageUrl, ads, comments);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", role=" + role +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", ads=" + ads +
+                ", comments=" + comments +
+                '}';
+    }
 }
