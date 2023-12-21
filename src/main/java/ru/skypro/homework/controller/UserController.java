@@ -1,8 +1,13 @@
 package ru.skypro.homework.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -22,6 +27,32 @@ import java.io.IOException;
 public class UserController {
     private final UserService userService;
 
+    @Operation(
+            tags = "Пользователи",
+            summary = "Обновление пароля авторизированного пользователя",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Пароль обновлен",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Доступ запрещен",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Пользователь не найден",
+                            content = @Content()
+                    )
+            }
+    )
     @PostMapping("/set_password")
     public ResponseEntity setPassword(@RequestBody NewPasswordDto newPass) {
         try {
@@ -34,6 +65,25 @@ public class UserController {
         }
     }
 
+    @Operation(
+            tags = "Пользователи",
+            summary = "Получение информации об авторизованном пользователе",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Информация об авторизированном пользователе",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = UserDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    )
+            }
+    )
     @GetMapping("/me")
     public ResponseEntity<UserDto> getUser() {
         try {
@@ -43,6 +93,25 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+    @Operation(
+            tags = "Пользователи",
+            summary = "Обновление информации об авторизованном пользователе",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Информация об авторизированном пользователе обновлена",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = UserDto.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    )
+            }
+    )
     @PatchMapping("/me")
     public ResponseEntity<UpdateUserDto> updateUser(@RequestBody UpdateUserDto updateUserDto) {
         try {
@@ -52,6 +121,22 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+    @Operation(
+            tags = "Пользователи",
+            summary = "Обновление аватара авторизованного пользователя",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Аватар обновлен",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Пользователь не авторизован",
+                            content = @Content()
+                    )
+            }
+    )
     @PatchMapping("/me/image")
     public ResponseEntity<Void> updateUserImage(@RequestBody MultipartFile image) throws IOException {
         byte[] imageBytes = image.getBytes();

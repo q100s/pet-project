@@ -71,7 +71,7 @@ public class AdMapper {
         entity.setDescription(dto.getDescription());
         entity.setPrice(dto.getPrice());
         entity.setTitle(dto.getTitle());
-        entity.setAuthor(userRepository.getReferenceById(entity.getAuthor().getId()));
+        entity.setAuthor(userRepository.getReferenceById(userRepository.findByEmail(dto.getAuthorEmail()).getId()));
         return entity;
     }
 }
