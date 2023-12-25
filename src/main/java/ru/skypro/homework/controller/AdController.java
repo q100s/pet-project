@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.service.AdService;
-import ru.skypro.homework.service.CommentService;
 
 import java.io.IOException;
 
@@ -26,7 +25,6 @@ import java.io.IOException;
 @RequestMapping("/ads")
 public class AdController {
     private final AdService adService;
-    private final CommentService commentService;
 
     @Operation(
             tags = "Объявления",
@@ -104,7 +102,7 @@ public class AdController {
     @GetMapping("/{id}/comments")
     public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Integer id) {
         try {
-            CommentsDto comments = commentService.getComments(id);
+            CommentsDto comments = adService.getComments(id);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Unauthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -141,7 +139,7 @@ public class AdController {
     public ResponseEntity<CommentDto> addComment(@PathVariable("id") Integer id,
                                                  @RequestBody CreateOrUpdateCommentDto newComment) {
         try {
-            commentService.addComment(id, newComment);
+            adService.addComment(id, newComment);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Unauthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -191,6 +189,11 @@ public class AdController {
             summary = "Удаление объявления, найденному по переданному идентификатору",
             responses = {
                     @ApiResponse(
+                            responseCode = "200",
+                            description = "Объявление удалено",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
                             responseCode = "204",
                             description = "No content",
                             content = @Content()
@@ -216,13 +219,15 @@ public class AdController {
     public ResponseEntity<Void> removeAd(@PathVariable("id") Integer id) {
         try {
             adService.removeAd(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Unauthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (HttpClientErrorException.Forbidden e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
     }
 
@@ -300,7 +305,7 @@ public class AdController {
     public ResponseEntity<Void> deleteComment(@PathVariable("adId") Integer adId,
                                               @PathVariable("commentId") Integer commentId) {
         try {
-            commentService.deleteComment(adId, commentId);
+            adService.deleteComment(adId, commentId);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Forbidden e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -346,7 +351,7 @@ public class AdController {
                                                     @PathVariable("commentId") Integer commentId,
                                                     @RequestBody CreateOrUpdateCommentDto comment) {
         try {
-            commentService.updateComment(adId, commentId, comment);
+            adService.updateComment(adId, commentId, comment);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Forbidden e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

@@ -36,4 +36,7 @@ public class UserServiceImpl implements UserService {
     public void updateUserImage(byte[] imageBytes) {
 
     }
+    public User findById(Integer id) {
+        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+    }
 }
