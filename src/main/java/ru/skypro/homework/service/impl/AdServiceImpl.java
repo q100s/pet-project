@@ -26,16 +26,6 @@ public class AdServiceImpl implements AdService {
     }
 
     @Override
-    public CommentsDto getComments(Integer id) {
-        return null;
-    }
-
-    @Override
-    public CreateOrUpdateCommentDto addComment(Integer id, CreateOrUpdateCommentDto newComment) {
-        return null;
-    }
-
-    @Override
     public ExtendedAdDto getAds(Integer id) {
         return null;
     }
@@ -51,16 +41,6 @@ public class AdServiceImpl implements AdService {
     }
 
     @Override
-    public void deleteComment(Integer adId, Integer commentId) {
-
-    }
-
-    @Override
-    public CreateOrUpdateCommentDto updateComment(Integer adId, Integer commentId, CreateOrUpdateCommentDto comment) {
-        return null;
-    }
-
-    @Override
     public AdsDto getMyAds() {
         return null;
     }
@@ -68,8 +48,5 @@ public class AdServiceImpl implements AdService {
     @Override
     public void updateImage(Integer id, MultipartFile image) {
 
-    }
-    public Comment getByAdId(Integer id) {
-        return commentRepository.findByAdId(id);
     }
 }
