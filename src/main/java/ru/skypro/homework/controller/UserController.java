@@ -45,11 +45,6 @@ public class UserController {
                             responseCode = "403",
                             description = "Доступ запрещен",
                             content = @Content()
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Пользователь не найден",
-                            content = @Content()
                     )
             }
     )
