@@ -6,5 +6,5 @@ import ru.skypro.homework.model.Comment;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
-    Comment findByAdId(Integer id);
+
 }
