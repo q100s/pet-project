@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
-import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.CommentService;
 
