@@ -82,8 +82,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserDto> getUser() {
         try {
-            userService.getUserInfo();
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(userService.getUserInfo());
         } catch (HttpClientErrorException.Unauthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -110,8 +109,7 @@ public class UserController {
     @PatchMapping("/me")
     public ResponseEntity<UpdateUserDto> updateUser(@RequestBody UpdateUserDto updateUserDto) {
         try {
-            userService.updateUser(updateUserDto);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(userService.updateUser(updateUserDto));
         } catch (HttpClientErrorException.Unauthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

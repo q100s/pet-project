@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
+import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.UserService;
@@ -71,7 +72,8 @@ public class AdMapper {
         entity.setDescription(dto.getDescription());
         entity.setPrice(dto.getPrice());
         entity.setTitle(dto.getTitle());
-        entity.setAuthor(userRepository.getReferenceById(userRepository.findByEmail(dto.getAuthorEmail()).getId()));
+        entity.setAuthor(userRepository.getReferenceById(
+                userRepository.findByEmail(dto.getAuthorEmail()).orElseThrow(UserNotFoundException::new).getId()));
         return entity;
     }
 }

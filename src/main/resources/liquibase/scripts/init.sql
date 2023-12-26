@@ -20,7 +20,7 @@ CREATE TABLE comments (
 );
 
 CREATE TABLE users (
-    id INT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     email VARCHAR,
     password VARCHAR,
     first_name VARCHAR,

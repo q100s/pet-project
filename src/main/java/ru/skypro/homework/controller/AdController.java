@@ -151,7 +151,7 @@ public class AdController {
 
     @Operation(
             tags = "Объявления",
-            summary = "Получение информацию об объявлении, найденному по переданному идентификатору",
+            summary = "Получение информации об объявлении, найденному по переданному идентификатору",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -176,8 +176,7 @@ public class AdController {
     @GetMapping("/{id}")
     public ResponseEntity<ExtendedAdDto> getAds(@PathVariable("id") Integer id) {
         try {
-            adService.getAds(id);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(adService.getAds(id));
         } catch (HttpClientErrorException.Unauthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (HttpClientErrorException.NotFound e) {
@@ -191,7 +190,7 @@ public class AdController {
             responses = {
                     @ApiResponse(
                             responseCode = "204",
-                            description = "No content",
+                            description = "Объявление успешно удалено",
                             content = @Content()
                     ),
                     @ApiResponse(

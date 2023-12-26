@@ -26,7 +26,9 @@ public class UserMapper {
         entity.setLastName(dto.getLastName());
         entity.setPhoneNumber(dto.getPhoneNumber());
         entity.setRole(dto.getRole());
-        entity.setImageUrl(dto.getImageUrl());
+        if (dto.getImageUrl() != null) {
+            entity.setImageUrl(dto.getImageUrl());
+        }
         return entity;
     }
 
