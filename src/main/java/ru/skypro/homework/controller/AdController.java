@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
@@ -65,15 +66,12 @@ public class AdController {
                     )
             }
     )
-    @PostMapping
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<AdDto> addAd(@RequestPart("ad") CreateOrUpdateAdDto createOrUpdateAdDto,
-                                       @RequestPart("image") MultipartFile image) throws IOException {
-        try {
-            adService.addAd(createOrUpdateAdDto, image.getBytes());
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+                                       @RequestPart("image") MultipartFile image,
+                                       Authentication authentication) throws IOException {
+        adService.addAd(createOrUpdateAdDto, image, authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(
@@ -103,10 +101,7 @@ public class AdController {
     @GetMapping("/{id}/comments")
     public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Integer id) {
         try {
-            CommentsDto comments = commentService.getComments(id);
-            return ResponseEntity.ok().build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.ok(commentService.getComments(id));
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -174,11 +169,10 @@ public class AdController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<ExtendedAdDto> getAds(@PathVariable("id") Integer id) {
+    public ResponseEntity<ExtendedAdDto> getAds(@PathVariable("id") Integer id,
+                                                Authentication authentication) {
         try {
-            return ResponseEntity.ok(adService.getAds(id));
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.ok(adService.getAds(id, authentication));
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -211,14 +205,11 @@ public class AdController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeAd(@PathVariable("id") Integer id) {
+    public ResponseEntity<Void> removeAd(@PathVariable("id") Integer id,
+                                         Authentication authentication) {
         try {
-            adService.removeAd(id);
+            adService.removeAd(id, authentication);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (HttpClientErrorException.Forbidden e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -254,14 +245,10 @@ public class AdController {
     )
     @PatchMapping("/{id}")
     public ResponseEntity<AdDto> updateAds(@PathVariable("id") Integer id,
-                                           @RequestBody CreateOrUpdateAdDto ad) {
+                                           @RequestBody CreateOrUpdateAdDto ad,
+                                           Authentication authentication) {
         try {
-            adService.updateAds(id, ad);
-            return ResponseEntity.ok().build();
-        } catch (HttpClientErrorException.Forbidden e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.ok(adService.updateAds(id, ad, authentication));
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -375,14 +362,10 @@ public class AdController {
             }
     )
     @GetMapping("/me")
-    public ResponseEntity<AdsDto> getMyAds() {
-        try {
-            adService.getMyAds();
-            return ResponseEntity.ok().build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+    public ResponseEntity<AdsDto> getMyAds(Authentication authentication) {
+        return ResponseEntity.ok(adService.getMyAds(authentication));
     }
+
     @Operation(
             tags = "Объявления",
             summary = "Обновление картинки объявления, найденного по переданному идентификатору",
@@ -411,9 +394,10 @@ public class AdController {
     )
     @PatchMapping("/{id}/image")
     public ResponseEntity<Void> updateImage(@PathVariable("id") Integer id,
-                                            @RequestBody MultipartFile image) throws IOException {
+                                            @RequestBody MultipartFile image,
+                                            Authentication authentication) throws IOException {
         try {
-            adService.updateImage(id, image);
+            adService.updateImage(id, image, authentication);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Forbidden e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

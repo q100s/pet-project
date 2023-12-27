@@ -32,6 +32,10 @@ public class User {
     @OneToMany(mappedBy = "author")
     private Collection<Comment> comments;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "image_id")
+    private Image image;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -46,12 +50,13 @@ public class User {
                 && role == user.role
                 && Objects.equals(imageUrl, user.imageUrl)
                 && Objects.equals(ads, user.ads)
-                && Objects.equals(comments, user.comments);
+                && Objects.equals(comments, user.comments)
+                && Objects.equals(image, user.image);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, password, firstName, lastName, phoneNumber, role, imageUrl, ads, comments);
+        return Objects.hash(id, email, password, firstName, lastName, phoneNumber, role, imageUrl, ads, comments, image);
     }
 
     @Override
@@ -67,6 +72,7 @@ public class User {
                 ", imageUrl='" + imageUrl + '\'' +
                 ", ads=" + ads +
                 ", comments=" + comments +
+                ", image=" + image +
                 '}';
     }
 }

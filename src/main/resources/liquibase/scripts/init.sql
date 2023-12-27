@@ -7,7 +7,8 @@ CREATE TABLE ad (
     title VARCHAR,
     description VARCHAR,
     image_url VARCHAR,
-    author_id INT
+    author_id INT,
+    image_id INT
 );
 
 CREATE TABLE comments (
@@ -27,5 +28,13 @@ CREATE TABLE users (
     last_name VARCHAR,
     phone_number VARCHAR,
     role VARCHAR, --enum Role
-    image_url VARCHAR
+    image_url VARCHAR,
+    image_id INT
+);
+
+CREATE TABLE image (
+    id SERIAL PRIMARY KEY,
+    data oid,
+    file_size BIGINT,
+    media_type VARCHAR
 );
