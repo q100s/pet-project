@@ -32,13 +32,8 @@ public class AuthServiceImpl implements AuthService {
         if (manager.userExists(registerDto.getUsername())) {
             return false;
         }
-        manager.createUser(
-                User.builder()
-                        .passwordEncoder(this.encoder::encode)
-                        .password(registerDto.getPassword())
-                        .username(registerDto.getUsername())
-                        .roles(registerDto.getRole().name())
-                        .build());
+        registerDto.setPassword(encoder.encode(registerDto.getPassword()));
+        manager.createUser(registerDto);
         return true;
     }
 }

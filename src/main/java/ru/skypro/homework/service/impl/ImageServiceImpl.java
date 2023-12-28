@@ -28,4 +28,14 @@ public class ImageServiceImpl implements ImageService {
         image.setMediaType(multipartFile.getContentType());
         return imageRepository.save(image);
     }
+
+    @Override
+    public void deleteImage(Image image) {
+        imageRepository.delete(image);
+    }
+
+    @Override
+    public Image findById(Integer id) {
+        return imageRepository.findById(id).orElseThrow(ImageNotFoundException::new);
+    }
 }

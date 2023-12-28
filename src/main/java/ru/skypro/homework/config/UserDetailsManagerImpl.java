@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.constant.Role;
+import ru.skypro.homework.dto.RegisterDto;
 import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repository.UserRepository;
@@ -31,6 +32,17 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
         user.setEmail(userDetails.getUsername());
         user.setPassword(userDetails.getPassword());
         user.setRole(Role.valueOf(userDetails.getAuthorities().iterator().next().getAuthority().substring(5)));
+        userRepository.save(user);
+    }
+
+    public void createUser(RegisterDto registerDto) {
+        User user = new User();
+        user.setPassword(registerDto.getPassword());
+        user.setEmail(registerDto.getUsername());
+        user.setFirstName(registerDto.getFirstName());
+        user.setLastName(registerDto.getLastName());
+        user.setPhoneNumber(registerDto.getPhone());
+        user.setRole(registerDto.getRole());
         userRepository.save(user);
     }
 

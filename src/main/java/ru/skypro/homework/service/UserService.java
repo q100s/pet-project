@@ -10,4 +10,6 @@ public interface UserService {
     UserDto getUserInfo();
     UpdateUserDto updateUser(UpdateUserDto updateUserDto);
     void updateUserImage(byte[] imageBytes);
+
+    UserDto findByEmail(String email);
 }

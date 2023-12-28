@@ -2,7 +2,6 @@ package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.expression.AccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -12,20 +11,19 @@ import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.dto.mapper.AdMapper;
+import ru.skypro.homework.dto.mapper.UserMapper;
 import ru.skypro.homework.exception.AccessDeniedException;
 import ru.skypro.homework.exception.AdNotFoundException;
-import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.exception.UserUnauthorizedException;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.Image;
 import ru.skypro.homework.repository.AdRepository;
-import ru.skypro.homework.repository.CommentRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.ImageService;
+import ru.skypro.homework.service.UserService;
 
 import java.io.IOException;
-import java.security.AccessControlException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,9 +32,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class AdServiceImpl implements AdService {
-    private final ImageService imageService;
     private final AdRepository adRepository;
-    private final UserRepository userRepository;
+    private final ImageService imageService;
+    private final UserService userService;
 
     /**
      * Метод возвращает коллекцию всех объявлений. <br>
@@ -67,7 +65,7 @@ public class AdServiceImpl implements AdService {
         if (authentication.isAuthenticated()) {
             Image newImage = imageService.saveToDataBase(image);
             Ad ad = AdMapper.mapFromCreateOrUpdateAdDtoIntoAdEntity(adDto);
-            ad.setAuthor(userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new));
+            ad.setAuthor(UserMapper.mapFromUserDtoIntoUserEntity(userService.findByEmail(authentication.getName())));
             ad.setImage(newImage);
             ad.setImageUrl("/images/" + newImage.getId());
             return AdMapper.mapFromAdEntityIntoAdDto(ad);
@@ -96,8 +94,10 @@ public class AdServiceImpl implements AdService {
     @Override
     public void removeAd(Integer id, Authentication authentication) {
         Ad deletedAd = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
+        Image deletedImage = imageService.findById(deletedAd.getImage().getId());
         if (isAdmin(authentication) || isAdsOwner(authentication, authentication.getName())) {
             adRepository.delete(deletedAd);
+            imageService.deleteImage(deletedImage);
         } else {
             throw new AccessDeniedException();
         }
@@ -120,7 +120,7 @@ public class AdServiceImpl implements AdService {
 
     @Override
     public AdsDto getMyAds(Authentication authentication) {
-        Integer myId = userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new).getId();
+        Integer myId = userService.findByEmail(authentication.getName()).getId();
         List<AdDto> allMyAds = adRepository.findAll().stream()
                 .map(AdMapper::mapFromAdEntityIntoAdDto)
                 .filter(ad -> ad.getPk().equals(myId))
@@ -130,7 +130,18 @@ public class AdServiceImpl implements AdService {
 
     @Override
     public void updateImage(Integer id, MultipartFile image, Authentication authentication) {
-
+        if (isAdmin(authentication) || isAdsOwner(authentication, authentication.getName())) {
+            Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
+            imageService.deleteImage(ad.getImage());
+            try {
+                Image updatedImage = imageService.saveToDataBase(image);
+                ad.setImage(updatedImage);
+            } catch (IOException e) {
+                log.error(e.getMessage());
+            }
+        } else {
+            throw new AccessDeniedException();
+        }
     }
 
     private boolean isAdsOwner(Authentication authentication, String userName) {
