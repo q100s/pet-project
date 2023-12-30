@@ -3,8 +3,8 @@ package ru.skypro.homework.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.FORBIDDEN)
-public class AccessDeniedException extends RuntimeException {
-    public AccessDeniedException() {
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class PasswordsNotMatchException extends RuntimeException {
+    public PasswordsNotMatchException() {
     }
 }

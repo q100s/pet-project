@@ -1,23 +1,24 @@
 package ru.skypro.homework.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.constant.Role;
 import ru.skypro.homework.dto.RegisterDto;
+import ru.skypro.homework.exception.PasswordsNotMatchException;
 import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repository.UserRepository;
 
 @Component
+@RequiredArgsConstructor
 public class UserDetailsManagerImpl implements UserDetailsManager {
 
     private final UserRepository userRepository;
-
-    public UserDetailsManagerImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final PasswordEncoder encoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -37,7 +38,7 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
 
     public void createUser(RegisterDto registerDto) {
         User user = new User();
-        user.setPassword(registerDto.getPassword());
+        user.setPassword(encoder.encode(registerDto.getPassword()));
         user.setEmail(registerDto.getUsername());
         user.setFirstName(registerDto.getFirstName());
         user.setLastName(registerDto.getLastName());
@@ -49,6 +50,15 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
     @Override
     public void changePassword(String oldPassword, String newPassword) {
 
+    }
+
+    public void changePassword(String oldPassword, String newPassword, User user) {
+        if (encoder.matches(oldPassword, user.getPassword())) {
+            user.setPassword(encoder.encode(newPassword));
+            userRepository.save(user);
+        } else {
+            throw new PasswordsNotMatchException();
+        }
     }
 
     @Override

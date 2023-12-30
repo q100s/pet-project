@@ -3,7 +3,6 @@ package ru.skypro.homework.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
@@ -11,7 +10,6 @@ import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.dto.mapper.AdMapper;
-import ru.skypro.homework.dto.mapper.UserMapper;
 import ru.skypro.homework.exception.AccessDeniedException;
 import ru.skypro.homework.exception.AdNotFoundException;
 import ru.skypro.homework.exception.UserUnauthorizedException;
@@ -55,20 +53,21 @@ public class AdServiceImpl implements AdService {
      * #{@link UserRepository#findByEmail(String)}. <br>
      * #{@link ImageService#saveToDataBase(MultipartFile)}
      *
-     * @param adDto          объявление в формате {@link CreateOrUpdateAdDto}
+     * @param properties     объявление в формате {@link CreateOrUpdateAdDto}
      * @param image          картинка в формате {@link MultipartFile}
      * @param authentication
      * @return возвращает модель объявления в формате {@link AdDto}
      */
     @Override
-    public AdDto addAd(CreateOrUpdateAdDto adDto, MultipartFile image, Authentication authentication) throws IOException {
+    public AdDto addAd(CreateOrUpdateAdDto properties, MultipartFile image, Authentication authentication) throws IOException {
         if (authentication.isAuthenticated()) {
             Image newImage = imageService.saveToDataBase(image);
-            Ad ad = AdMapper.mapFromCreateOrUpdateAdDtoIntoAdEntity(adDto);
-            ad.setAuthor(UserMapper.mapFromUserDtoIntoUserEntity(userService.findByEmail(authentication.getName())));
-            ad.setImage(newImage);
-            ad.setImageUrl("/images/" + newImage.getId());
-            return AdMapper.mapFromAdEntityIntoAdDto(ad);
+            Ad adEntity = AdMapper.mapFromCreateOrUpdateAdDtoIntoAdEntity(properties);
+            adEntity.setAuthor(userService.findByEmail(authentication.getName()));
+            adEntity.setImage(newImage);
+            adEntity.setImageUrl("/images/" + newImage.getId());
+            adRepository.save(adEntity);
+            return AdMapper.mapFromAdEntityIntoAdDto(adEntity);
         } else {
             throw new UserUnauthorizedException();
         }
@@ -95,7 +94,8 @@ public class AdServiceImpl implements AdService {
     public void removeAd(Integer id, Authentication authentication) {
         Ad deletedAd = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
         Image deletedImage = imageService.findById(deletedAd.getImage().getId());
-        if (isAdmin(authentication) || isAdsOwner(authentication, authentication.getName())) {
+        String deletedAdAuthorName = deletedAd.getAuthor().getEmail();
+        if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, deletedAdAuthorName)) {
             adRepository.delete(deletedAd);
             imageService.deleteImage(deletedImage);
         } else {
@@ -104,10 +104,10 @@ public class AdServiceImpl implements AdService {
     }
 
     @Override
-    public AdDto updateAds(Integer id, CreateOrUpdateAdDto ad, Authentication authentication) {
-        Ad newProperties = AdMapper.mapFromCreateOrUpdateAdDtoIntoAdEntity(ad);
+    public AdDto updateAds(Integer id, CreateOrUpdateAdDto newProperties, Authentication authentication) {
         Ad updatedAd = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
-        if (isAdmin(authentication) || isAdsOwner(authentication, authentication.getName())) {
+        String updatedAdAuthorName = updatedAd.getAuthor().getEmail();
+        if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, updatedAdAuthorName)) {
             Optional.ofNullable(newProperties.getPrice()).ifPresent(updatedAd::setPrice);
             Optional.ofNullable(newProperties.getTitle()).ifPresent(updatedAd::setTitle);
             Optional.ofNullable(newProperties.getDescription()).ifPresent(updatedAd::setDescription);
@@ -122,20 +122,23 @@ public class AdServiceImpl implements AdService {
     public AdsDto getMyAds(Authentication authentication) {
         Integer myId = userService.findByEmail(authentication.getName()).getId();
         List<AdDto> allMyAds = adRepository.findAll().stream()
+                .filter(ad -> ad.getAuthor().getId().equals(myId))
                 .map(AdMapper::mapFromAdEntityIntoAdDto)
-                .filter(ad -> ad.getPk().equals(myId))
                 .collect(Collectors.toList());
         return new AdsDto(allMyAds.size(), allMyAds);
     }
 
     @Override
     public void updateImage(Integer id, MultipartFile image, Authentication authentication) {
-        if (isAdmin(authentication) || isAdsOwner(authentication, authentication.getName())) {
+        String adAuthorName = adRepository.findById(id).orElseThrow(AdNotFoundException::new).getAuthor().getEmail();
+        if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, adAuthorName)) {
             Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
             imageService.deleteImage(ad.getImage());
             try {
-                Image updatedImage = imageService.saveToDataBase(image);
-                ad.setImage(updatedImage);
+                Image newImage = imageService.saveToDataBase(image);
+                ad.setImage(newImage);
+                ad.setImageUrl("/images/" + newImage.getId());
+                adRepository.save(ad);
             } catch (IOException e) {
                 log.error(e.getMessage());
             }
@@ -144,14 +147,13 @@ public class AdServiceImpl implements AdService {
         }
     }
 
-    private boolean isAdsOwner(Authentication authentication, String userName) {
-        return authentication.getName().equals(userName);
+    @Override
+    public Ad getById(Integer id) {
+        return adRepository.findById(id).orElseThrow(AdNotFoundException::new);
     }
 
-    private boolean isAdmin(Authentication authentication) {
-        return authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList())
-                .contains("ROLE_ADMIN");
+    @Override
+    public Ad createAd(Ad ad) {
+        return adRepository.save(ad);
     }
 }

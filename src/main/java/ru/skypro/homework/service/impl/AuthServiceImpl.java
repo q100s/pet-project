@@ -2,7 +2,6 @@ package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
         if (manager.userExists(registerDto.getUsername())) {
             return false;
         }
-        registerDto.setPassword(encoder.encode(registerDto.getPassword()));
+        registerDto.setPassword(registerDto.getPassword());
         manager.createUser(registerDto);
         return true;
     }

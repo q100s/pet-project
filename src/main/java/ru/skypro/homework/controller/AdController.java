@@ -67,10 +67,10 @@ public class AdController {
             }
     )
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<AdDto> addAd(@RequestPart("ad") CreateOrUpdateAdDto createOrUpdateAdDto,
+    public ResponseEntity<AdDto> addAd(@RequestPart(value = "properties") CreateOrUpdateAdDto properties,
                                        @RequestPart("image") MultipartFile image,
                                        Authentication authentication) throws IOException {
-        adService.addAd(createOrUpdateAdDto, image, authentication);
+        adService.addAd(properties, image, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -99,9 +99,10 @@ public class AdController {
             }
     )
     @GetMapping("/{id}/comments")
-    public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Integer id) {
+    public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Integer id,
+                                                   Authentication authentication) {
         try {
-            return ResponseEntity.ok(commentService.getComments(id));
+            return ResponseEntity.ok(commentService.getCommentsById(id, authentication));
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -133,10 +134,10 @@ public class AdController {
     )
     @PostMapping("/{id}/comments")
     public ResponseEntity<CommentDto> addComment(@PathVariable("id") Integer id,
+                                                 Authentication authentication,
                                                  @RequestBody CreateOrUpdateCommentDto newComment) {
         try {
-            commentService.addComment(id, newComment);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(commentService.addComment(id, authentication, newComment));
         } catch (HttpClientErrorException.Unauthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (HttpClientErrorException.NotFound e) {
@@ -169,13 +170,8 @@ public class AdController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<ExtendedAdDto> getAds(@PathVariable("id") Integer id,
-                                                Authentication authentication) {
-        try {
-            return ResponseEntity.ok(adService.getAds(id, authentication));
-        } catch (HttpClientErrorException.NotFound e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    public ResponseEntity<ExtendedAdDto> getAds(@PathVariable("id") Integer id, Authentication authentication) {
+        return ResponseEntity.ok(adService.getAds(id, authentication));
     }
 
     @Operation(
@@ -205,8 +201,7 @@ public class AdController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeAd(@PathVariable("id") Integer id,
-                                         Authentication authentication) {
+    public ResponseEntity<Void> removeAd(@PathVariable("id") Integer id, Authentication authentication) {
         try {
             adService.removeAd(id, authentication);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -245,8 +240,7 @@ public class AdController {
     )
     @PatchMapping("/{id}")
     public ResponseEntity<AdDto> updateAds(@PathVariable("id") Integer id,
-                                           @RequestBody CreateOrUpdateAdDto ad,
-                                           Authentication authentication) {
+                                           @RequestBody CreateOrUpdateAdDto ad, Authentication authentication) {
         try {
             return ResponseEntity.ok(adService.updateAds(id, ad, authentication));
         } catch (HttpClientErrorException.NotFound e) {
@@ -283,9 +277,10 @@ public class AdController {
     )
     @DeleteMapping("/{adId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable("adId") Integer adId,
-                                              @PathVariable("commentId") Integer commentId) {
+                                              @PathVariable("commentId") Integer commentId,
+                                              Authentication authentication) {
         try {
-            commentService.deleteComment(adId, commentId);
+            commentService.deleteComment(adId, commentId, authentication);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Forbidden e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -329,9 +324,10 @@ public class AdController {
     @PatchMapping("/{adId}/comments/{commentId}")
     public ResponseEntity<CommentDto> updateComment(@PathVariable("adId") Integer adId,
                                                     @PathVariable("commentId") Integer commentId,
-                                                    @RequestBody CreateOrUpdateCommentDto comment) {
+                                                    @RequestBody CreateOrUpdateCommentDto comment,
+                                                    Authentication authentication) {
         try {
-            commentService.updateComment(adId, commentId, comment);
+            commentService.updateComment(adId, commentId, comment, authentication);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Forbidden e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -362,8 +358,8 @@ public class AdController {
             }
     )
     @GetMapping("/me")
-    public ResponseEntity<AdsDto> getMyAds(Authentication authentication) {
-        return ResponseEntity.ok(adService.getMyAds(authentication));
+    public AdsDto getAdsMe(Authentication authentication) {
+        return adService.getMyAds(authentication);
     }
 
     @Operation(

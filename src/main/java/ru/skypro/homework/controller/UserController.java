@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,9 +50,10 @@ public class UserController {
             }
     )
     @PostMapping("/set_password")
-    public ResponseEntity setPassword(@RequestBody NewPasswordDto newPass) {
+    public ResponseEntity<?> setPassword(@RequestBody NewPasswordDto newPass,
+                                         Authentication authentication) {
         try {
-            userService.setPassword(newPass);
+            userService.setPassword(newPass, authentication);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Unauthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -80,9 +82,9 @@ public class UserController {
             }
     )
     @GetMapping("/me")
-    public ResponseEntity<UserDto> getUser() {
+    public ResponseEntity<UserDto> getUser(Authentication authentication) {
         try {
-            return ResponseEntity.ok(userService.getUserInfo());
+            return ResponseEntity.ok(userService.getUserInfo(authentication));
         } catch (HttpClientErrorException.Unauthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -107,9 +109,10 @@ public class UserController {
             }
     )
     @PatchMapping("/me")
-    public ResponseEntity<UpdateUserDto> updateUser(@RequestBody UpdateUserDto updateUserDto) {
+    public ResponseEntity<UserDto> updateUser(@RequestBody UpdateUserDto updateUserDto,
+                                              Authentication authentication) {
         try {
-            return ResponseEntity.ok(userService.updateUser(updateUserDto));
+            return ResponseEntity.ok(userService.updateUser(updateUserDto, authentication));
         } catch (HttpClientErrorException.Unauthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -131,10 +134,10 @@ public class UserController {
             }
     )
     @PatchMapping("/me/image")
-    public ResponseEntity<Void> updateUserImage(@RequestBody MultipartFile image) throws IOException {
-        byte[] imageBytes = image.getBytes();
+    public ResponseEntity<Void> updateUserImage(@RequestBody MultipartFile image,
+                                                Authentication authentication) throws IOException {
         try {
-            userService.updateUserImage(imageBytes);
+            userService.updateUserImage(image, authentication);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Unauthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

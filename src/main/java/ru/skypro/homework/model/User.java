@@ -1,6 +1,9 @@
 package ru.skypro.homework.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.skypro.homework.constant.Role;
 
 import javax.persistence.*;
@@ -26,10 +29,10 @@ public class User {
     private Role role;
     private String imageUrl;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private Collection<Ad> ads;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private Collection<Comment> comments;
 
     @OneToOne(fetch = FetchType.LAZY)

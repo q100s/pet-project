@@ -2,7 +2,7 @@
 
 -- changeset q100s:1
 CREATE TABLE ad (
-    id INT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     price INT,
     title VARCHAR,
     description VARCHAR,
@@ -12,8 +12,7 @@ CREATE TABLE ad (
 );
 
 CREATE TABLE comments (
-    id INT PRIMARY KEY,
-    price INT,
+    id SERIAL PRIMARY KEY,
     text VARCHAR,
     created_at INT,
     author_id INT,
