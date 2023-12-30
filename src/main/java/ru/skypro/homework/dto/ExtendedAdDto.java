@@ -8,9 +8,9 @@ public class ExtendedAdDto {
     private String authorFirstName;
     private String authorLastName;
     private String description;
-    private String authorEmail;
-    private String adImageUrl;
-    private String authorPhoneNumber;
+    private String email;
+    private String image;
+    private String phone;
     private Integer price;
     private String title;
 }

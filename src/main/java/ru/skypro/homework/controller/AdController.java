@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
@@ -65,15 +66,12 @@ public class AdController {
                     )
             }
     )
-    @PostMapping
-    public ResponseEntity<AdDto> addAd(@RequestPart("ad") CreateOrUpdateAdDto createOrUpdateAdDto,
-                                       @RequestPart("image") MultipartFile image) throws IOException {
-        try {
-            adService.addAd(createOrUpdateAdDto, image.getBytes());
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<AdDto> addAd(@RequestPart(value = "properties") CreateOrUpdateAdDto properties,
+                                       @RequestPart("image") MultipartFile image,
+                                       Authentication authentication) throws IOException {
+        adService.addAd(properties, image, authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(
@@ -101,12 +99,10 @@ public class AdController {
             }
     )
     @GetMapping("/{id}/comments")
-    public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Integer id) {
+    public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Integer id,
+                                                   Authentication authentication) {
         try {
-            CommentsDto comments = commentService.getComments(id);
-            return ResponseEntity.ok().build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.ok(commentService.getCommentsById(id, authentication));
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -138,10 +134,10 @@ public class AdController {
     )
     @PostMapping("/{id}/comments")
     public ResponseEntity<CommentDto> addComment(@PathVariable("id") Integer id,
+                                                 Authentication authentication,
                                                  @RequestBody CreateOrUpdateCommentDto newComment) {
         try {
-            commentService.addComment(id, newComment);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(commentService.addComment(id, authentication, newComment));
         } catch (HttpClientErrorException.Unauthorized e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (HttpClientErrorException.NotFound e) {
@@ -151,7 +147,7 @@ public class AdController {
 
     @Operation(
             tags = "Объявления",
-            summary = "Получение информацию об объявлении, найденному по переданному идентификатору",
+            summary = "Получение информации об объявлении, найденному по переданному идентификатору",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -174,15 +170,8 @@ public class AdController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<ExtendedAdDto> getAds(@PathVariable("id") Integer id) {
-        try {
-            adService.getAds(id);
-            return ResponseEntity.ok().build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (HttpClientErrorException.NotFound e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    public ResponseEntity<ExtendedAdDto> getAds(@PathVariable("id") Integer id, Authentication authentication) {
+        return ResponseEntity.ok(adService.getAds(id, authentication));
     }
 
     @Operation(
@@ -191,7 +180,7 @@ public class AdController {
             responses = {
                     @ApiResponse(
                             responseCode = "204",
-                            description = "No content",
+                            description = "Объявление успешно удалено",
                             content = @Content()
                     ),
                     @ApiResponse(
@@ -212,14 +201,10 @@ public class AdController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeAd(@PathVariable("id") Integer id) {
+    public ResponseEntity<Void> removeAd(@PathVariable("id") Integer id, Authentication authentication) {
         try {
-            adService.removeAd(id);
+            adService.removeAd(id, authentication);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (HttpClientErrorException.Forbidden e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -255,14 +240,9 @@ public class AdController {
     )
     @PatchMapping("/{id}")
     public ResponseEntity<AdDto> updateAds(@PathVariable("id") Integer id,
-                                           @RequestBody CreateOrUpdateAdDto ad) {
+                                           @RequestBody CreateOrUpdateAdDto ad, Authentication authentication) {
         try {
-            adService.updateAds(id, ad);
-            return ResponseEntity.ok().build();
-        } catch (HttpClientErrorException.Forbidden e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.ok(adService.updateAds(id, ad, authentication));
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -297,9 +277,10 @@ public class AdController {
     )
     @DeleteMapping("/{adId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable("adId") Integer adId,
-                                              @PathVariable("commentId") Integer commentId) {
+                                              @PathVariable("commentId") Integer commentId,
+                                              Authentication authentication) {
         try {
-            commentService.deleteComment(adId, commentId);
+            commentService.deleteComment(adId, commentId, authentication);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Forbidden e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -343,9 +324,10 @@ public class AdController {
     @PatchMapping("/{adId}/comments/{commentId}")
     public ResponseEntity<CommentDto> updateComment(@PathVariable("adId") Integer adId,
                                                     @PathVariable("commentId") Integer commentId,
-                                                    @RequestBody CreateOrUpdateCommentDto comment) {
+                                                    @RequestBody CreateOrUpdateCommentDto comment,
+                                                    Authentication authentication) {
         try {
-            commentService.updateComment(adId, commentId, comment);
+            commentService.updateComment(adId, commentId, comment, authentication);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Forbidden e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -376,14 +358,10 @@ public class AdController {
             }
     )
     @GetMapping("/me")
-    public ResponseEntity<AdsDto> getMyAds() {
-        try {
-            adService.getMyAds();
-            return ResponseEntity.ok().build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+    public AdsDto getAdsMe(Authentication authentication) {
+        return adService.getMyAds(authentication);
     }
+
     @Operation(
             tags = "Объявления",
             summary = "Обновление картинки объявления, найденного по переданному идентификатору",
@@ -412,9 +390,10 @@ public class AdController {
     )
     @PatchMapping("/{id}/image")
     public ResponseEntity<Void> updateImage(@PathVariable("id") Integer id,
-                                            @RequestBody MultipartFile image) throws IOException {
+                                            @RequestBody MultipartFile image,
+                                            Authentication authentication) throws IOException {
         try {
-            adService.updateImage(id, image);
+            adService.updateImage(id, image, authentication);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException.Forbidden e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
