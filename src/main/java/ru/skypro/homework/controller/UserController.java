@@ -133,7 +133,7 @@ public class UserController {
                     )
             }
     )
-    @PatchMapping("/me/image")
+    @PatchMapping(value = "/me/image", consumes = {MediaType.IMAGE_JPEG_VALUE})
     public ResponseEntity<Void> updateUserImage(@RequestBody MultipartFile image,
                                                 Authentication authentication) throws IOException {
         try {

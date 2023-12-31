@@ -66,7 +66,7 @@ public class AdController {
                     )
             }
     )
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(consumes = {MediaType.IMAGE_JPEG_VALUE})
     public ResponseEntity<AdDto> addAd(@RequestPart(value = "properties") CreateOrUpdateAdDto properties,
                                        @RequestPart("image") MultipartFile image,
                                        Authentication authentication) throws IOException {
@@ -388,7 +388,7 @@ public class AdController {
                     )
             }
     )
-    @PatchMapping("/{id}/image")
+    @PatchMapping(value = "/{id}/image", consumes = {MediaType.IMAGE_JPEG_VALUE})
     public ResponseEntity<Void> updateImage(@PathVariable("id") Integer id,
                                             @RequestBody MultipartFile image,
                                             Authentication authentication) throws IOException {
