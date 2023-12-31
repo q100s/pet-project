@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
+import ru.skypro.homework.exception.InvalidMediaTypeException;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.CommentService;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -66,10 +68,13 @@ public class AdController {
                     )
             }
     )
-    @PostMapping(consumes = {MediaType.IMAGE_JPEG_VALUE})
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<AdDto> addAd(@RequestPart(value = "properties") CreateOrUpdateAdDto properties,
                                        @RequestPart("image") MultipartFile image,
                                        Authentication authentication) throws IOException {
+        if (!(Objects.requireNonNull(image.getContentType()).startsWith("image/"))) {
+            throw new InvalidMediaTypeException();
+        }
         adService.addAd(properties, image, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -388,10 +393,13 @@ public class AdController {
                     )
             }
     )
-    @PatchMapping(value = "/{id}/image", consumes = {MediaType.IMAGE_JPEG_VALUE})
+    @PatchMapping(value = "/{id}/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> updateImage(@PathVariable("id") Integer id,
                                             @RequestBody MultipartFile image,
                                             Authentication authentication) throws IOException {
+        if (!(Objects.requireNonNull(image.getContentType()).startsWith("image/"))) {
+            throw new InvalidMediaTypeException();
+        }
         try {
             adService.updateImage(id, image, authentication);
             return ResponseEntity.ok().build();
