@@ -17,6 +17,6 @@
 
 
 
-<img align="left" height="100" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfFEdweWPwGX0mge-xV_c5ySRbI8yp2qDomnsp0rsMNGq8cSJaHk1Ckm_JYo1YQiEf7Lk&usqp=CAU"  />
+<img align="left" height="100" src="[https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfFEdweWPwGX0mge-xV_c5ySRbI8yp2qDomnsp0rsMNGq8cSJaHk1Ckm_JYo1YQiEf7Lk&usqp=CAU](https://avatars.mds.yandex.net/i?id=2eeb82e3288306274e3978319f3687d6_sr-10156478-images-thumbs&n=13)https://avatars.mds.yandex.net/i?id=2eeb82e3288306274e3978319f3687d6_sr-10156478-images-thumbs&n=13"  />
 
 ###
