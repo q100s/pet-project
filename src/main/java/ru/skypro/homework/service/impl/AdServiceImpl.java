@@ -36,8 +36,7 @@ public class AdServiceImpl implements AdService {
 
     /**
      * Метод возвращает коллекцию всех объявлений. <br>
-     * #{@link AdRepository#findAll()} <br>
-     *
+     * {@link AdRepository#findAll()} <br>
      * @return коллекция всех объявлений, хранящихся в базе данных в формате {@link AdDto}
      */
     @Override
@@ -49,17 +48,18 @@ public class AdServiceImpl implements AdService {
     }
 
     /**
-     * Метод возвращает информацию об объявлении по переданному идентификатору. <br>
-     * #{@link UserRepository#findByEmail(String)}. <br>
-     * #{@link ImageService#saveToDataBase(MultipartFile)}
-     *
+     * Метод сохраняет новое объявление в базе данных. <br>
+     * {@link UserRepository#findByEmail(String)}. <br>
+     * {@link ImageService#saveToDataBase(MultipartFile)}
      * @param properties     объявление в формате {@link CreateOrUpdateAdDto}
      * @param image          картинка в формате {@link MultipartFile}
      * @param authentication
-     * @return возвращает модель объявления в формате {@link AdDto}
+     * @return объявление в формате {@link AdDto}
      */
     @Override
-    public AdDto addAd(CreateOrUpdateAdDto properties, MultipartFile image, Authentication authentication) throws IOException {
+    public AdDto addAd(CreateOrUpdateAdDto properties,
+                       MultipartFile image,
+                       Authentication authentication) throws IOException {
         if (authentication.isAuthenticated()) {
             Image newImage = imageService.saveToDataBase(image);
             Ad adEntity = AdMapper.mapFromCreateOrUpdateAdDtoIntoAdEntity(properties);
@@ -74,11 +74,11 @@ public class AdServiceImpl implements AdService {
     }
 
     /**
-     * Метод возвращает информацию об объявлении по переданному идентификатору
-     * #{@link AdRepository#findById(Object)} <br>
-     *
+     * Метод возвращает информацию об объявлении, найденному по переданному идентификатору. <br>
+     * {@link AdRepository#findById(Object)} <br>
      * @param id идентификатор объявления
-     * @return возвращает модель объявления в формате {@link ExtendedAdDto}
+     * @param authentication
+     * @return объявление в формате {@link ExtendedAdDto}
      */
     @Override
     public ExtendedAdDto getAds(Integer id, Authentication authentication) {
@@ -90,10 +90,22 @@ public class AdServiceImpl implements AdService {
         }
     }
 
+    /**
+     * Метод удаляет объявление, найденное по переданному идентификатору. <br>
+     * {@link AdRepository#findById(Object)} <br>
+     * {@link AdRepository#delete(Object)} (Object)} <br>
+     * {@link ImageService#getById(Integer)} <br>
+     * {@link ImageService#deleteImage(Image)} <br>
+     * {@link ValidationService#isAdmin(Authentication)} <br>
+     * {@link ValidationService#isOwner(Authentication, String)} <br>
+     *
+     * @param id             идентификатор объявления
+     * @param authentication
+     */
     @Override
     public void removeAd(Integer id, Authentication authentication) {
         Ad deletedAd = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
-        Image deletedImage = imageService.findById(deletedAd.getImage().getId());
+        Image deletedImage = imageService.getById(deletedAd.getImage().getId());
         String deletedAdAuthorName = deletedAd.getAuthor().getEmail();
         if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, deletedAdAuthorName)) {
             adRepository.delete(deletedAd);
@@ -103,6 +115,18 @@ public class AdServiceImpl implements AdService {
         }
     }
 
+    /**
+     * Метод обновляет у найденноого по переданному идентификатору объявления поля, согласно новым полученным данным от
+     * {@link CreateOrUpdateAdDto}. <br>
+     * {@link AdRepository#findById(Object)} <br>
+     * {@link AdRepository#save(Object)} <br>
+     * {@link ValidationService#isAdmin(Authentication)} <br>
+     * {@link ValidationService#isOwner(Authentication, String)} <br>
+     * @param id идентификатор объявления
+     * @param newProperties новые данные для объявления
+     * @param authentication
+     * @return обновленное объявление в формате {@link AdDto}
+     */
     @Override
     public AdDto updateAds(Integer id, CreateOrUpdateAdDto newProperties, Authentication authentication) {
         Ad updatedAd = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
@@ -118,6 +142,13 @@ public class AdServiceImpl implements AdService {
         }
     }
 
+    /**
+     * Метод возвращает коллекцию объявлений авторизированного пользователя. <br>
+     * {@link UserService#findByEmail(String)}
+     * {@link AdRepository#findAll()}
+     * @param authentication
+     * @return коллекцию объявлений в формате {@link AdsDto}
+     */
     @Override
     public AdsDto getMyAds(Authentication authentication) {
         Integer myId = userService.findByEmail(authentication.getName()).getId();
@@ -128,6 +159,16 @@ public class AdServiceImpl implements AdService {
         return new AdsDto(allMyAds.size(), allMyAds);
     }
 
+    /**
+     * Метод обновляет картинку объявления полученную в формте {@link MultipartFile}. <br>
+     * {@link AdRepository#findById(Object)}
+     * {@link AdRepository#save(Object)}
+     * {@link ImageService#deleteImage(Image)}
+     * {@link ImageService#saveToDataBase(MultipartFile)}
+     * @param id идентификатор объявления
+     * @param image новая картинка
+     * @param authentication
+     */
     @Override
     public void updateImage(Integer id, MultipartFile image, Authentication authentication) {
         String adAuthorName = adRepository.findById(id).orElseThrow(AdNotFoundException::new).getAuthor().getEmail();
@@ -147,11 +188,23 @@ public class AdServiceImpl implements AdService {
         }
     }
 
+    /**
+     * Метод возвращает объявление, найденное по переданному идентификатору. <br>
+     * {@link AdRepository#findById(Object)}
+     * @param id идентификатор объявления
+     * @return объявление в формате {@link Ad}
+     */
     @Override
     public Ad getById(Integer id) {
         return adRepository.findById(id).orElseThrow(AdNotFoundException::new);
     }
 
+    /**
+     * Метод сохраняет полученное объявление в базу данных. <br>
+     * {@link AdRepository#save(Object)}
+     * @param ad объявление для сохранения
+     * @return объявление в формате {@link Ad}
+     */
     @Override
     public Ad createAd(Ad ad) {
         return adRepository.save(ad);

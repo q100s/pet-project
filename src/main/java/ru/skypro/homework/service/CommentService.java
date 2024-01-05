@@ -6,7 +6,7 @@ import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 
 public interface CommentService {
-    CommentsDto getCommentsById(Integer id, Authentication authentication);
+    CommentsDto getCommentsByAdId(Integer id, Authentication authentication);
 
     CommentDto addComment(Integer id, Authentication authentication, CreateOrUpdateCommentDto newComment);
 

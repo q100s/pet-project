@@ -107,7 +107,7 @@ public class AdController {
     public ResponseEntity<CommentsDto> getComments(@PathVariable("id") Integer id,
                                                    Authentication authentication) {
         try {
-            return ResponseEntity.ok(commentService.getCommentsById(id, authentication));
+            return ResponseEntity.ok(commentService.getCommentsByAdId(id, authentication));
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
