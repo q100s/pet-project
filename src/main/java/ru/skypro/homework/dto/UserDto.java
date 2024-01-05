@@ -9,7 +9,7 @@ public class UserDto {
     private String email;
     private String firstName;
     private String lastName;
-    private String phoneNumber;
+    private String phone;
     private Role role;
-    private String imageUrl;
+    private String image;
 }

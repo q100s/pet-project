@@ -1,6 +1,9 @@
 package ru.skypro.homework.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.skypro.homework.constant.Role;
 
 import javax.persistence.*;
@@ -9,8 +12,8 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -26,11 +29,15 @@ public class User {
     private Role role;
     private String imageUrl;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private Collection<Ad> ads;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private Collection<Comment> comments;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "image_id")
+    private Image image;
 
     @Override
     public boolean equals(Object o) {
@@ -46,12 +53,13 @@ public class User {
                 && role == user.role
                 && Objects.equals(imageUrl, user.imageUrl)
                 && Objects.equals(ads, user.ads)
-                && Objects.equals(comments, user.comments);
+                && Objects.equals(comments, user.comments)
+                && Objects.equals(image, user.image);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, password, firstName, lastName, phoneNumber, role, imageUrl, ads, comments);
+        return Objects.hash(id, email, password, firstName, lastName, phoneNumber, role, imageUrl, ads, comments, image);
     }
 
     @Override
@@ -67,6 +75,7 @@ public class User {
                 ", imageUrl='" + imageUrl + '\'' +
                 ", ads=" + ads +
                 ", comments=" + comments +
+                ", image=" + image +
                 '}';
     }
 }
