@@ -19,6 +19,7 @@ import ru.skypro.homework.service.CommentService;
 import ru.skypro.homework.service.UserService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -130,7 +131,7 @@ public class CommentServiceImpl implements CommentService {
         String commentAuthorName = commentToUpdate.getAuthor().getEmail();
         if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, commentAuthorName)) {
             adToUpdate.getComments().remove(commentToUpdate);
-            commentToUpdate.setText(comment.getText());
+            Optional.ofNullable(comment.getText()).ifPresent(commentToUpdate::setText);
             adToUpdate.getComments().add(commentToUpdate);
             commentRepository.save(commentToUpdate);
             adService.createAd(adToUpdate);
