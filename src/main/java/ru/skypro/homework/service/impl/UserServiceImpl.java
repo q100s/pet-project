@@ -27,6 +27,14 @@ public class UserServiceImpl implements UserService {
     private final ImageService imageService;
     private final UserDetailsManagerImpl manager;
 
+    /**
+     * Метод устанавливает новый пароль авторизированному пользователю. <br>
+     * {@link UserRepository#findById(Object)}
+     * {@link UserDetailsManagerImpl#changePassword(String, String, User)}
+     *
+     * @param newPasswordDto новый пароль
+     * @param authentication
+     */
     @Override
     public void setPassword(NewPasswordDto newPasswordDto, Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
@@ -35,12 +43,26 @@ public class UserServiceImpl implements UserService {
         manager.changePassword(oldPassword, newPassword, user);
     }
 
+    /**
+     * Метод возвращает информацию об авторизированном пользователе. <br>
+     * {@link UserRepository#findByEmail(String)}
+     * @param authentication
+     * @return сущность пользователя в формате {@link UserDto}
+     */
     @Override
     public UserDto getUserInfo(Authentication authentication) {
         return UserMapper.mapFromUserEntityIntoUserDto(userRepository.findByEmail(authentication.getName()).
                 orElseThrow(UserNotFoundException::new));
     }
 
+    /**
+     * Метод обновляет информацию об авторизированном пользователе. <br>
+     * {@link UserRepository#findByEmail(String)}
+     * {@link UserRepository#save(Object)}
+     * @param newProperties новые данные для авторизированного пользователя
+     * @param authentication
+     * @return обновленного пользователя в формате {@link UserDto}
+     */
     @Override
     public UserDto updateUser(UpdateUserDto newProperties, Authentication authentication) {
         User updatedUser = userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
@@ -51,6 +73,15 @@ public class UserServiceImpl implements UserService {
         return UserMapper.mapFromUserEntityIntoUserDto(updatedUser);
     }
 
+    /**
+     * Метод обновляет картинку авторизированного пользователя. <br>
+     * {@link UserRepository#findByEmail(String)}
+     * {@link UserRepository#save(Object)}
+     * {@link ImageService#saveToDataBase(MultipartFile)}
+     * {@link ImageService#deleteImage(Image)}
+     * @param image новая картинка
+     * @param authentication
+     */
     @Override
     public void updateUserImage(MultipartFile image, Authentication authentication) throws IOException {
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
@@ -64,11 +95,23 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    /**
+     * Метод возвращает пользователя, найденного по переданному логину. <br>
+     * {@link UserRepository#findByEmail(String)}
+     * @param email логин для поиска
+     * @return найденного пользователя {@link User}
+     */
     @Override
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
     }
 
+    /**
+     * Метод создает полученного пользователя в базе данных. <br>
+     * {@link UserRepository#save(Object)}
+     * @param user пользователь, которого необходимо сохранить
+     * @return сохраненного пользователя {@link User}
+     */
     @Override
     public User createUser(User user) {
         return userRepository.save(user);

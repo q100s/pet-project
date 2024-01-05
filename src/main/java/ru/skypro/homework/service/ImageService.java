@@ -11,6 +11,4 @@ public interface ImageService {
     Image saveToDataBase(MultipartFile multipartFile) throws IOException;
 
     void deleteImage(Image image);
-
-    Image findById(Integer id);
 }
