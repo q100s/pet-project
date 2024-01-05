@@ -1,10 +1,22 @@
-<p align="left">3apacteyite @<br>Mbl komanga javaBeans, npeaAcTasarem Ballemy BHUMAHMW AMNAOMHbIA NpoeKT: UHTepHeT MarasuH.<br><br>Llenio npoekta 6bin0 cosnaHnery
+<p align="left">Здраствуйте👋
+Мы команда javaBeans, представляем вашему вниманию дипломный проект: Интернет магазин.
+
+Целю проекта было создание программного обеспечения, представляющего возможность взаимодействия между пользователем и администратором.</p>
+
 ###
+
+<p align="left">Целю проекта было создание программного обеспечения, представляющего возможность взаимодействия между пользователем и сотрудниками приюта животных.</p>
+
+###
+
 <p align="left">Участники <br>- Анохин Эдуард;     <br>- Воронков Марк;     <br>- Мачульский Антон.</p>
+
 ###
-<p align="left">Mpoekt HanucaH ¢ ucnonb30BaHuvem:<br>Backend: Java 11, Maven, PostgresSQL, Liquibase, Maven, Spring Security, Spring Web, Spring JPA, JSON Al
-###
-<div align="left">
-<img height="150" src="https://avatars.mds.yandex.net/i?id=2eeb82e3288306274e3978319F3687d6_sr-10156478-images-thumbs&n=13" />
-</div>
+
+<p align="left">Проект написан с использованием:<br>Backend: Java 17, Maven, PostgresSQL, Liquibase, Maven, Spring Boot, Spring Web, Spring JPA, Spring DATA, JSON API.<br>Frontend: Swagger UI, Telegram API.</p>
+
+
+
+<img align="left" height="100" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfFEdweWPwGX0mge-xV_c5ySRbI8yp2qDomnsp0rsMNGq8cSJaHk1Ckm_JYo1YQiEf7Lk&usqp=CAU"  />
+
 ###
