@@ -14,7 +14,7 @@
 
 ###
 
-<p align="left">Проект написан с использованием:<br>Backend: Java 17, Maven, PostgresSQL, Liquibase, Maven, Spring Boot, Spring Web, Spring JPA, Spring DATA, JSON API.<br>Frontend: Swagger UI, Telegram API.</p>
+<p align="left">Проект написан с использованием:<br>Backend: Java 17, Maven, PostgresSQL, Liquibase, Maven, Spring Boot, Spring Web, Spring JPA, Spring DATA, JSON API.<br>Frontend: Swagger UI, Docker.</p>
 
 
 
