@@ -141,9 +141,4 @@ public class CommentServiceImpl implements CommentService {
             throw new AccessDeniedException();
         }
     }
-
-    private boolean isCommentOwner(Authentication authentication, Integer id) {
-        Integer currentId = userService.findByEmail(authentication.getName()).getId();
-        return currentId.equals(id);
-    }
 }
