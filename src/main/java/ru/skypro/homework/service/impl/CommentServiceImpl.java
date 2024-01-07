@@ -18,6 +18,8 @@ import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.CommentService;
 import ru.skypro.homework.service.UserService;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -67,17 +69,14 @@ public class CommentServiceImpl implements CommentService {
         if (authentication.isAuthenticated()) {
             Ad adForComment = adService.getById(id);
             User author = userService.findByEmail(authentication.getName());
-
             Comment commentToAdd = new Comment();
             commentToAdd.setText(newComment.getText());
-            commentToAdd.setCreatedAt((int) System.currentTimeMillis());
+            commentToAdd.setCreatedAt(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) * 1000);
             commentToAdd.setAuthor(author);
             commentToAdd.setAd(adForComment);
             commentRepository.save(commentToAdd);
-
             author.getComments().add(commentToAdd);
             userService.createUser(author);
-
             return CommentMapper.mapFromCommentEntityIntoCommentDto(commentToAdd);
         } else {
             throw new UserUnauthorizedException();
@@ -100,6 +99,7 @@ public class CommentServiceImpl implements CommentService {
     public void deleteComment(Integer adId, Integer commentId, Authentication authentication) {
         Comment commentToDelete = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         String commentAuthorName = commentToDelete.getAuthor().getEmail();
+        Integer commentAuthorId = commentToDelete.getAuthor().getId();
         if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, commentAuthorName)) {
             adService.getById(adId).getComments().remove(commentToDelete);
             commentRepository.delete(commentToDelete);
@@ -124,20 +124,26 @@ public class CommentServiceImpl implements CommentService {
      * @return обновленный комментарий в формате {@link CommentDto}
      */
     @Override
-    public CreateOrUpdateCommentDto updateComment(Integer adId, Integer commentId, CreateOrUpdateCommentDto comment,
+    public CommentDto updateComment(Integer adId, Integer commentId, CreateOrUpdateCommentDto comment,
                                                   Authentication authentication) {
         Comment commentToUpdate = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         Ad adToUpdate = adService.getById(adId);
         String commentAuthorName = commentToUpdate.getAuthor().getEmail();
+        Integer commentAuthorId = commentToUpdate.getAuthor().getId();
         if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, commentAuthorName)) {
             adToUpdate.getComments().remove(commentToUpdate);
             Optional.ofNullable(comment.getText()).ifPresent(commentToUpdate::setText);
             adToUpdate.getComments().add(commentToUpdate);
             commentRepository.save(commentToUpdate);
             adService.createAd(adToUpdate);
-            return CommentMapper.mapFromCommentEntityIntoCreateOrUpdateCommentDto(commentToUpdate);
+            return CommentMapper.mapFromCommentEntityIntoCommentDto(commentToUpdate);
         } else {
             throw new AccessDeniedException();
         }
+    }
+
+    private boolean isCommentOwner(Authentication authentication, Integer id) {
+        Integer currentId = userService.findByEmail(authentication.getName()).getId();
+        return currentId.equals(id);
     }
 }

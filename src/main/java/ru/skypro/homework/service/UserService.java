@@ -14,7 +14,7 @@ public interface UserService {
 
     UserDto getUserInfo(Authentication authentication);
 
-    UserDto updateUser(UpdateUserDto updateUserDto, Authentication authentication);
+    UpdateUserDto updateUser(UpdateUserDto updateUserDto, Authentication authentication);
 
     void updateUserImage(MultipartFile image, Authentication authentication) throws IOException;
 
