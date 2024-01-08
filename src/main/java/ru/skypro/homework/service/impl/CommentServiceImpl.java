@@ -99,7 +99,6 @@ public class CommentServiceImpl implements CommentService {
     public void deleteComment(Integer adId, Integer commentId, Authentication authentication) {
         Comment commentToDelete = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         String commentAuthorName = commentToDelete.getAuthor().getEmail();
-        Integer commentAuthorId = commentToDelete.getAuthor().getId();
         if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, commentAuthorName)) {
             adService.getById(adId).getComments().remove(commentToDelete);
             commentRepository.delete(commentToDelete);
@@ -129,7 +128,6 @@ public class CommentServiceImpl implements CommentService {
         Comment commentToUpdate = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         Ad adToUpdate = adService.getById(adId);
         String commentAuthorName = commentToUpdate.getAuthor().getEmail();
-        Integer commentAuthorId = commentToUpdate.getAuthor().getId();
         if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, commentAuthorName)) {
             adToUpdate.getComments().remove(commentToUpdate);
             Optional.ofNullable(comment.getText()).ifPresent(commentToUpdate::setText);
