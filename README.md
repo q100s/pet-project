@@ -8,7 +8,7 @@
 
 ###
 
-<p align="left">Используемые технологии и библиотеки:<br>Backend: Java 17, Maven, PostgresSQL, Liquibase, Maven, Spring Boot, Spring Web, Spring JPA, Spring DATA, Spring security, JSON API.<br>Frontend: Swagger UI, Docker.</p>
+<p align="left">Используемые технологии и библиотеки:<br>Backend: Java 17, Maven, PostgresSQL, Liquibase, Maven, Spring Boot, Spring Web, Spring DATA, Spring Security, JSON API.<br>Frontend: Swagger UI, Docker.</p>
 
 
 <img align="left" height="100" src="https://play-lh.googleusercontent.com/C9eetIMSKkCHinvS4xNj_S7y8Ryx6kg5J5jEsQz1_lPGMuZQ53WPw0ZJ1y9sD-rlMscS=s64"/>
