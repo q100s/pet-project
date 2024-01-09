@@ -64,13 +64,13 @@ public class UserServiceImpl implements UserService {
      * @return обновленного пользователя в формате {@link UserDto}
      */
     @Override
-    public UserDto updateUser(UpdateUserDto newProperties, Authentication authentication) {
+    public UpdateUserDto updateUser(UpdateUserDto newProperties, Authentication authentication) {
         User updatedUser = userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
         Optional.ofNullable(newProperties.getFirstName()).ifPresent(updatedUser::setFirstName);
         Optional.ofNullable(newProperties.getLastName()).ifPresent(updatedUser::setLastName);
         Optional.ofNullable(newProperties.getPhone()).ifPresent(updatedUser::setPhoneNumber);
         userRepository.save(updatedUser);
-        return UserMapper.mapFromUserEntityIntoUserDto(updatedUser);
+        return UserMapper.mapFromUserEntityIntoUpdateUserDto(updatedUser);
     }
 
     /**

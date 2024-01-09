@@ -276,7 +276,9 @@ public class AdController {
                     @ApiResponse(
                             responseCode = "404",
                             description = "Объявления/комментария с переданным идентификатором не существует в базе данных",
-                            content = @Content()
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = CommentDto.class))
                     )
             }
     )
@@ -287,10 +289,6 @@ public class AdController {
         try {
             commentService.deleteComment(adId, commentId, authentication);
             return ResponseEntity.ok().build();
-        } catch (HttpClientErrorException.Forbidden e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -329,15 +327,11 @@ public class AdController {
     @PatchMapping("/{adId}/comments/{commentId}")
     public ResponseEntity<CommentDto> updateComment(@PathVariable("adId") Integer adId,
                                                     @PathVariable("commentId") Integer commentId,
-                                                    @RequestBody CreateOrUpdateCommentDto comment,
-                                                    Authentication authentication) {
+                                                    Authentication authentication,
+                                                    @RequestBody CreateOrUpdateCommentDto comment) {
         try {
             commentService.updateComment(adId, commentId, comment, authentication);
-            return ResponseEntity.ok().build();
-        } catch (HttpClientErrorException.Forbidden e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.ok(commentService.updateComment(adId, commentId, comment, authentication));
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

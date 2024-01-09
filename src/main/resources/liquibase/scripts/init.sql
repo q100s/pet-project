@@ -14,7 +14,7 @@ CREATE TABLE ad (
 CREATE TABLE comments (
     id SERIAL PRIMARY KEY,
     text VARCHAR,
-    created_at INT,
+    created_at BIGINT,
     author_id INT,
     ad_id INT
 );

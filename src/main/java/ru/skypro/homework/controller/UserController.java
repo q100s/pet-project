@@ -111,7 +111,7 @@ public class UserController {
             }
     )
     @PatchMapping("/me")
-    public ResponseEntity<UserDto> updateUser(@RequestBody UpdateUserDto updateUserDto,
+    public ResponseEntity<UpdateUserDto> updateUser(@RequestBody UpdateUserDto updateUserDto,
                                               Authentication authentication) {
         try {
             return ResponseEntity.ok(userService.updateUser(updateUserDto, authentication));
