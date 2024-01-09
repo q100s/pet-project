@@ -9,6 +9,7 @@ import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.dto.mapper.UserMapper;
+import ru.skypro.homework.exception.InvalidMediaTypeException;
 import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.model.Image;
 import ru.skypro.homework.model.User;
@@ -84,6 +85,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void updateUserImage(MultipartFile image, Authentication authentication) throws IOException {
+        if (!ValidationService.isFileImage(image)) {
+            throw new InvalidMediaTypeException();
+        }
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
         Image usersImage = user.getImage();
         Image newImage = imageService.saveToDataBase(image);

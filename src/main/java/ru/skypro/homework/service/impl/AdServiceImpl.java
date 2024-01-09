@@ -12,6 +12,7 @@ import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.dto.mapper.AdMapper;
 import ru.skypro.homework.exception.AccessDeniedException;
 import ru.skypro.homework.exception.AdNotFoundException;
+import ru.skypro.homework.exception.InvalidMediaTypeException;
 import ru.skypro.homework.exception.UserUnauthorizedException;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.Image;
@@ -57,9 +58,11 @@ public class AdServiceImpl implements AdService {
      * @return объявление в формате {@link AdDto}
      */
     @Override
-    public AdDto addAd(CreateOrUpdateAdDto properties,
-                       MultipartFile image,
-                       Authentication authentication) throws IOException {
+    public AdDto addAd(CreateOrUpdateAdDto properties, MultipartFile image, Authentication authentication)
+            throws IOException {
+        if (!ValidationService.isFileImage(image)) {
+            throw new InvalidMediaTypeException();
+        }
         if (authentication.isAuthenticated()) {
             Image newImage = imageService.saveToDataBase(image);
             Ad adEntity = AdMapper.mapFromCreateOrUpdateAdDtoIntoAdEntity(properties);
@@ -171,6 +174,9 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public void updateImage(Integer id, MultipartFile image, Authentication authentication) {
+        if (!ValidationService.isFileImage(image)) {
+            throw new InvalidMediaTypeException();
+        }
         String adAuthorName = adRepository.findById(id).orElseThrow(AdNotFoundException::new).getAuthor().getEmail();
         if (ValidationService.isAdmin(authentication) || ValidationService.isOwner(authentication, adAuthorName)) {
             Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);

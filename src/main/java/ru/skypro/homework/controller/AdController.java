@@ -14,12 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
-import ru.skypro.homework.exception.InvalidMediaTypeException;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.CommentService;
 
 import java.io.IOException;
-import java.util.Objects;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -72,9 +70,6 @@ public class AdController {
     public ResponseEntity<AdDto> addAd(@RequestPart(value = "properties") CreateOrUpdateAdDto properties,
                                        @RequestPart("image") MultipartFile image,
                                        Authentication authentication) throws IOException {
-        if (!(Objects.requireNonNull(image.getContentType()).startsWith("image/"))) {
-            throw new InvalidMediaTypeException();
-        }
         adService.addAd(properties, image, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -143,8 +138,6 @@ public class AdController {
                                                  @RequestBody CreateOrUpdateCommentDto newComment) {
         try {
             return ResponseEntity.ok(commentService.addComment(id, authentication, newComment));
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -330,7 +323,6 @@ public class AdController {
                                                     Authentication authentication,
                                                     @RequestBody CreateOrUpdateCommentDto comment) {
         try {
-            commentService.updateComment(adId, commentId, comment, authentication);
             return ResponseEntity.ok(commentService.updateComment(adId, commentId, comment, authentication));
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -391,16 +383,9 @@ public class AdController {
     public ResponseEntity<Void> updateImage(@PathVariable("id") Integer id,
                                             @RequestBody MultipartFile image,
                                             Authentication authentication) throws IOException {
-        if (!(Objects.requireNonNull(image.getContentType()).startsWith("image/"))) {
-            throw new InvalidMediaTypeException();
-        }
         try {
             adService.updateImage(id, image, authentication);
             return ResponseEntity.ok().build();
-        } catch (HttpClientErrorException.Forbidden e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

@@ -16,11 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
-import ru.skypro.homework.exception.InvalidMediaTypeException;
 import ru.skypro.homework.service.UserService;
 
 import java.io.IOException;
-import java.util.Objects;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -138,9 +136,6 @@ public class UserController {
     @PatchMapping(value = "/me/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> updateUserImage(@RequestBody MultipartFile image,
                                                 Authentication authentication) throws IOException {
-        if (!(Objects.requireNonNull(image.getContentType()).startsWith("image/"))) {
-            throw new InvalidMediaTypeException();
-        }
         try {
             userService.updateUserImage(image, authentication);
             return ResponseEntity.ok().build();
