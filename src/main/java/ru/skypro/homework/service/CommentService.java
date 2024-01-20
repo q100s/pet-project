@@ -13,5 +13,5 @@ public interface CommentService {
     void deleteComment(Integer adId, Integer commentId, Authentication authentication);
 
     CommentDto updateComment(Integer adId, Integer commentId, CreateOrUpdateCommentDto comment,
-                                           Authentication authentication);
+                             Authentication authentication);
 }

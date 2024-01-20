@@ -55,8 +55,6 @@ public class UserController {
         try {
             userService.setPassword(newPass, authentication);
             return ResponseEntity.ok().build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (HttpClientErrorException.Forbidden e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -83,12 +81,9 @@ public class UserController {
     )
     @GetMapping("/me")
     public ResponseEntity<UserDto> getUser(Authentication authentication) {
-        try {
-            return ResponseEntity.ok(userService.getUserInfo(authentication));
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        return ResponseEntity.ok(userService.getUserInfo(authentication));
     }
+
     @Operation(
             tags = "Пользователи",
             summary = "Обновление информации об авторизованном пользователе",
@@ -110,13 +105,10 @@ public class UserController {
     )
     @PatchMapping("/me")
     public ResponseEntity<UpdateUserDto> updateUser(@RequestBody UpdateUserDto updateUserDto,
-                                              Authentication authentication) {
-        try {
-            return ResponseEntity.ok(userService.updateUser(updateUserDto, authentication));
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+                                                    Authentication authentication) {
+        return ResponseEntity.ok(userService.updateUser(updateUserDto, authentication));
     }
+
     @Operation(
             tags = "Пользователи",
             summary = "Обновление аватара авторизованного пользователя",
@@ -136,11 +128,7 @@ public class UserController {
     @PatchMapping(value = "/me/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Void> updateUserImage(@RequestBody MultipartFile image,
                                                 Authentication authentication) throws IOException {
-        try {
-            userService.updateUserImage(image, authentication);
-            return ResponseEntity.ok().build();
-        } catch (HttpClientErrorException.Unauthorized e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        userService.updateUserImage(image, authentication);
+        return ResponseEntity.ok().build();
     }
 }
