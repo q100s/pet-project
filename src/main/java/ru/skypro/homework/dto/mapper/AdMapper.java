@@ -9,7 +9,7 @@ import ru.skypro.homework.model.Ad;
 @Component
 public class AdMapper {
 
-    public static AdDto mapFromAdEntityIntoAdDto(Ad entity) {
+    public static AdDto mapIntoAdDto(Ad entity) {
         AdDto dto = new AdDto();
         dto.setPk(entity.getId());
         dto.setAuthor(entity.getAuthor().getId());
@@ -19,7 +19,7 @@ public class AdMapper {
         return dto;
     }
 
-    public static Ad mapFromCreateOrUpdateAdDtoIntoAdEntity(CreateOrUpdateAdDto dto) {
+    public static Ad mapIntoAdEntity(CreateOrUpdateAdDto dto) {
         Ad entity = new Ad();
         entity.setPrice(dto.getPrice());
         entity.setDescription(dto.getDescription());
@@ -27,7 +27,7 @@ public class AdMapper {
         return entity;
     }
 
-    public static ExtendedAdDto mapFromAdEntityIntoExtendedAdDto(Ad entity) {
+    public static ExtendedAdDto mapIntoExtendedAdDto(Ad entity) {
         ExtendedAdDto dto = new ExtendedAdDto();
         dto.setPk(entity.getId());
         dto.setAuthorFirstName(entity.getAuthor().getFirstName());

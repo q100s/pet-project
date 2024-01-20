@@ -45,7 +45,7 @@ public class ValidationService {
      * @param image проверяемый файл
      * @return true - в случае, если файл является картинкой
      */
-    public static boolean isFileImage(MultipartFile image) {
+    public static boolean isImage(MultipartFile image) {
         return Objects.requireNonNull(image.getContentType()).startsWith("image/");
     }
 }

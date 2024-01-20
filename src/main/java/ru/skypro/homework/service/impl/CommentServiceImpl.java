@@ -35,7 +35,6 @@ public class CommentServiceImpl implements CommentService {
     /**
      * Метод возвращает коллекцию всех комментариев у объявления, найденного по переданному идентификатору. <br>
      * {@link CommentRepository#findByAdId(Integer)}
-     *
      * @param id             идентификатор объявления
      * @param authentication
      * @return коллекцию комментариев в формате {@link CommentsDto}
@@ -44,7 +43,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentsDto getCommentsByAdId(Integer id, Authentication authentication) {
         if (authentication.isAuthenticated()) {
             List<CommentDto> allComments = commentRepository.findByAdId(id).stream()
-                    .map(CommentMapper::mapFromCommentEntityIntoCommentDto)
+                    .map(CommentMapper::mapIntoCommentDto)
                     .collect(Collectors.toList());
             return new CommentsDto(allComments.size(), allComments);
         } else {
@@ -77,7 +76,7 @@ public class CommentServiceImpl implements CommentService {
             commentRepository.save(commentToAdd);
             author.getComments().add(commentToAdd);
             userService.createUser(author);
-            return CommentMapper.mapFromCommentEntityIntoCommentDto(commentToAdd);
+            return CommentMapper.mapIntoCommentDto(commentToAdd);
         } else {
             throw new UserUnauthorizedException();
         }
@@ -134,7 +133,7 @@ public class CommentServiceImpl implements CommentService {
             adToUpdate.getComments().add(commentToUpdate);
             commentRepository.save(commentToUpdate);
             adService.createAd(adToUpdate);
-            return CommentMapper.mapFromCommentEntityIntoCommentDto(commentToUpdate);
+            return CommentMapper.mapIntoCommentDto(commentToUpdate);
         } else {
             throw new AccessDeniedException();
         }

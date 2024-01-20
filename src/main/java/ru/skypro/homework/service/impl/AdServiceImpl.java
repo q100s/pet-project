@@ -43,7 +43,7 @@ public class AdServiceImpl implements AdService {
     @Override
     public AdsDto getAllAds() {
         List<AdDto> allAds = adRepository.findAll().stream()
-                .map(AdMapper::mapFromAdEntityIntoAdDto)
+                .map(AdMapper::mapIntoAdDto)
                 .collect(Collectors.toList());
         return new AdsDto(allAds.size(), allAds);
     }
@@ -58,19 +58,19 @@ public class AdServiceImpl implements AdService {
      * @return объявление в формате {@link AdDto}
      */
     @Override
-    public AdDto addAd(CreateOrUpdateAdDto properties, MultipartFile image, Authentication authentication)
-            throws IOException {
-        if (!ValidationService.isFileImage(image)) {
+    public AdDto addAd(CreateOrUpdateAdDto properties, MultipartFile image,
+                       Authentication authentication) throws IOException {
+        if (!ValidationService.isImage(image)) {
             throw new InvalidMediaTypeException();
         }
         if (authentication.isAuthenticated()) {
             Image newImage = imageService.saveToDataBase(image);
-            Ad adEntity = AdMapper.mapFromCreateOrUpdateAdDtoIntoAdEntity(properties);
+            Ad adEntity = AdMapper.mapIntoAdEntity(properties);
             adEntity.setAuthor(userService.findByEmail(authentication.getName()));
             adEntity.setImage(newImage);
             adEntity.setImageUrl("/images/" + newImage.getId());
             adRepository.save(adEntity);
-            return AdMapper.mapFromAdEntityIntoAdDto(adEntity);
+            return AdMapper.mapIntoAdDto(adEntity);
         } else {
             throw new UserUnauthorizedException();
         }
@@ -87,7 +87,7 @@ public class AdServiceImpl implements AdService {
     public ExtendedAdDto getAds(Integer id, Authentication authentication) {
         if (authentication.isAuthenticated()) {
             Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
-            return AdMapper.mapFromAdEntityIntoExtendedAdDto(ad);
+            return AdMapper.mapIntoExtendedAdDto(ad);
         } else {
             throw new UserUnauthorizedException();
         }
@@ -139,7 +139,7 @@ public class AdServiceImpl implements AdService {
             Optional.ofNullable(newProperties.getTitle()).ifPresent(updatedAd::setTitle);
             Optional.ofNullable(newProperties.getDescription()).ifPresent(updatedAd::setDescription);
             adRepository.save(updatedAd);
-            return AdMapper.mapFromAdEntityIntoAdDto(updatedAd);
+            return AdMapper.mapIntoAdDto(updatedAd);
         } else {
             throw new AccessDeniedException();
         }
@@ -157,7 +157,7 @@ public class AdServiceImpl implements AdService {
         Integer myId = userService.findByEmail(authentication.getName()).getId();
         List<AdDto> allMyAds = adRepository.findAll().stream()
                 .filter(ad -> ad.getAuthor().getId().equals(myId))
-                .map(AdMapper::mapFromAdEntityIntoAdDto)
+                .map(AdMapper::mapIntoAdDto)
                 .collect(Collectors.toList());
         return new AdsDto(allMyAds.size(), allMyAds);
     }
@@ -174,7 +174,7 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public void updateImage(Integer id, MultipartFile image, Authentication authentication) {
-        if (!ValidationService.isFileImage(image)) {
+        if (!ValidationService.isImage(image)) {
             throw new InvalidMediaTypeException();
         }
         String adAuthorName = adRepository.findById(id).orElseThrow(AdNotFoundException::new).getAuthor().getEmail();

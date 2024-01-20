@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto getUserInfo(Authentication authentication) {
-        return UserMapper.mapFromUserEntityIntoUserDto(userRepository.findByEmail(authentication.getName()).
+        return UserMapper.mapIntoUserDto(userRepository.findByEmail(authentication.getName()).
                 orElseThrow(UserNotFoundException::new));
     }
 
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(newProperties.getLastName()).ifPresent(updatedUser::setLastName);
         Optional.ofNullable(newProperties.getPhone()).ifPresent(updatedUser::setPhoneNumber);
         userRepository.save(updatedUser);
-        return UserMapper.mapFromUserEntityIntoUpdateUserDto(updatedUser);
+        return UserMapper.mapIntoUpdateUserDto(updatedUser);
     }
 
     /**
@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void updateUserImage(MultipartFile image, Authentication authentication) throws IOException {
-        if (!ValidationService.isFileImage(image)) {
+        if (!ValidationService.isImage(image)) {
             throw new InvalidMediaTypeException();
         }
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
